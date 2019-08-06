@@ -5,6 +5,10 @@ import { takeUntil } from 'rxjs/operators';
 
 import { FuseConfigService } from '@fuse/services/config.service';
 import { fuseAnimations } from '@fuse/animations';
+import { HttpClient } from '@angular/common/http';
+import { Alert } from 'selenium-webdriver';
+import { post } from 'selenium-webdriver/http';
+import { Router } from '@angular/router';
 
 @Component({
     selector     : 'register',
@@ -16,13 +20,21 @@ import { fuseAnimations } from '@fuse/animations';
 export class RegisterComponent implements OnInit, OnDestroy
 {
     registerForm: FormGroup;
-
+    user: any = {
+        name: "",
+        email: "",
+        password: "",
+        passwordConfirm: ""
+    };
+    users = [];
     // Private
     private _unsubscribeAll: Subject<any>;
 
     constructor(
         private _fuseConfigService: FuseConfigService,
-        private _formBuilder: FormBuilder
+        private _formBuilder: FormBuilder,
+        private http: HttpClient,
+        private router: Router
     )
     {
         // Configure the layout
@@ -46,7 +58,38 @@ export class RegisterComponent implements OnInit, OnDestroy
         // Set the private defaults
         this._unsubscribeAll = new Subject();
     }
-
+    getData(){
+        this.http.get("http://localhost:3000/api/registers").subscribe((res: any)=>{
+        this.users = res.data;
+        console.log("getData");
+        console.log(res);
+        })
+    }
+    saveData(){
+        for (let i = 0; i < this.users.length; i++) {
+            const data = this.users[i];
+            if (this.user.name == data.name && this.user.email == data.email) {
+                alert("สมัครสมาชิกไม่สำเร็จ Name และ Email นี้ถูกใช้งานแล้ว");
+                return data;
+            }else if(this.user.name == data.name){
+                alert("สมัครสมาชิกไม่สำเร็จ Name นี้ถูกนี้ใช้งานแล้ว");
+                return data;
+            }else if(this.user.email == data.email){
+                alert("สมัครสมาชิกไม่สำเร็จ Email นี้ถูกใช้งานแล้ว");
+                return data;
+            }
+        }
+        alert("สมัครสมาชิก สำเร็จ");
+        this.postData(this.user)
+    }
+    postData(data : any){
+        console.log(data);
+        this.http.post("http://localhost:3000/api/registers/", data).subscribe((res: any)=>{
+        console.log(res);
+        this.getData();
+        this.router.navigate(["/auth/login"]);
+        })
+    }
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
     // -----------------------------------------------------------------------------------------------------
@@ -70,8 +113,8 @@ export class RegisterComponent implements OnInit, OnDestroy
             .subscribe(() => {
                 this.registerForm.get('passwordConfirm').updateValueAndValidity();
             });
+        this.getData();
     }
-
     /**
      * On destroy
      */

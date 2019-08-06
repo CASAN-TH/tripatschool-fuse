@@ -32,7 +32,7 @@
 
                 <mat-form-field appearance="outline">
                     <mat-label>Email</mat-label>
-                    <input matInput formControlName="email">
+                    <input matInput formControlName="email" [(ngModel)]="user.email">
                     <mat-icon matSuffix class="secondary-text">mail</mat-icon>
                     <mat-error *ngIf="loginForm.get('email').hasError('required')">
                         Email is required
@@ -46,7 +46,7 @@
 
                 <mat-form-field appearance="outline">
                     <mat-label>Password</mat-label>
-                    <input matInput type="password" formControlName="password">
+                    <input matInput type="password" formControlName="password"  [(ngModel)]="user.password">
                     <mat-icon matSuffix class="secondary-text">vpn_key</mat-icon>
                     <mat-error>
                         Password is required
@@ -64,7 +64,7 @@
                     </a>
                 </div>
 
-                <button mat-raised-button color="accent" class="submit-button" aria-label="LOGIN"
+                <button mat-raised-button color="accent" (click) = "loginClick()" class="submit-button" aria-label="LOGIN"
                         [disabled]="loginForm.invalid">
                     LOGIN
                 </button>
